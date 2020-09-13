@@ -1,14 +1,14 @@
 const webpack = require('webpack');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const baseConfig = require('./webpack.base.config');
 
-module.exports = merge.smart(baseConfig, {
-    target: 'electron-renderer',
+module.exports = merge(baseConfig, {
+    target: 'web',
     entry: {
-        app: ['@babel/polyfill','./src/renderer/app.tsx']
+        app: ['./src/renderer/app.tsx'],
     },
     module: {
         rules: [
@@ -20,25 +20,20 @@ module.exports = merge.smart(baseConfig, {
                     cacheDirectory: true,
                     babelrc: false,
                     presets: [
-                        [
-                            '@babel/preset-env',
-                            { targets: { browsers: 'last 2 versions ' } }
-                        ],
+                        ['@babel/preset-env', { targets: { browsers: 'last 2 versions ' } }],
                         '@babel/preset-typescript',
-                        '@babel/preset-react'
+                        '@babel/preset-react',
                     ],
-                    plugins: [
-                        ['@babel/plugin-proposal-class-properties', { loose: true }]
-                    ]
-                }
+                    plugins: [['@babel/plugin-proposal-class-properties', { loose: true }]],
+                },
             },
             {
                 test: /\.scss$/,
-                loaders: ['style-loader', 'css-loader', 'sass-loader']
+                loaders: ['style-loader', 'css-loader', 'sass-loader'],
             },
             {
                 test: /\.css$/,
-                loaders: ['style-loader', 'css-loader']
+                loaders: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.(gif|png|jpe?g|svg)$/,
@@ -47,27 +42,31 @@ module.exports = merge.smart(baseConfig, {
                     {
                         loader: 'image-webpack-loader',
                         options: {
-                            disable: true
-                        }
-                    }
-                ]
+                            disable: true,
+                        },
+                    },
+                ],
             },
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
             {
                 enforce: 'pre',
                 test: /\.js$/,
-                loader: 'source-map-loader'
-            }
-        ]
+                loader: 'source-map-loader',
+            },
+        ],
     },
     plugins: [
         new ForkTsCheckerWebpackPlugin({
-            reportFiles: ['src/renderer/**/*']
+            typescript: {
+                configOverwrite: {
+                    include: ['src/renderer/**/*'],
+                },
+            },
         }),
         new webpack.NamedModulesPlugin(),
         new HtmlWebpackPlugin(),
         new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
-        })
-    ]
+            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+        }),
+    ],
 });
